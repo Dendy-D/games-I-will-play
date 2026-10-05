@@ -20,6 +20,7 @@
 
   const changeListeners = new Set();
   const statusListeners = new Set();
+  const localListeners = new Set();
   const mirrorWorks = canUseLocalStorage();
 
   let db = null;
@@ -99,6 +100,19 @@
     return new Set(records.filter((record) => record.list === list && record.done).map((record) => record.key));
   }
 
+  // When each tick last changed, as far as this browser has seen
+  const stamps = new Map();
+  const stampId = (list, key) => `${list}\n${key}`;
+
+  function remember(records) {
+    for (const record of records) stamps.set(stampId(record.list, record.key), record.at);
+  }
+
+  // A new change must count as the latest even if another device's clock runs ahead of this one
+  function nextStamp(list, key) {
+    return Math.max(Date.now(), (stamps.get(stampId(list, key)) || 0) + 1);
+  }
+
   function applyTick({ list, key, done }) {
     if (done) ticked[list].add(key);
     else ticked[list].delete(key);
@@ -116,6 +130,11 @@
     for (const listener of statusListeners) listener();
   }
 
+  // This browser changed a tick itself (a click, a restored backup), as opposed to learning of one
+  function tellLocal() {
+    for (const listener of localListeners) listener();
+  }
+
   // Open the database and bring it, the localStorage copy and the page into agreement
   async function start() {
     try {
@@ -124,6 +143,7 @@
       db = opened;
 
       const records = await readAll();
+      remember(records);
       const shown = snapshot();
       const catchUp = [];
       for (const list of LISTS) {
@@ -153,10 +173,12 @@
     }
   }
 
-  // Reload the ticks after they changed somewhere else: another tab, or a restored backup
-  async function reload() {
+  // Reload the ticks after they may have changed somewhere else: another tab, a restored backup,
+  // another device. The page is only told when what it shows is no longer right.
+  async function reload(shown = snapshot()) {
     if (db) {
       const records = await readAll();
+      remember(records);
       for (const list of LISTS) {
         ticked[list] = tickedFrom(records, list);
         writeMirror(list);
@@ -164,13 +186,15 @@
     } else {
       for (const list of LISTS) ticked[list] = readMirror(list);
     }
-    tellPage();
+    const changed = snapshot() !== shown;
+    if (changed) tellPage();
+    return changed;
   }
 
   let channel = null;
   try {
     channel = new BroadcastChannel("i-will-play");
-    channel.onmessage = reload;
+    channel.onmessage = () => reload();
   } catch {
     // No channel here: other open tabs catch up the next time they load
   }
@@ -193,22 +217,27 @@
   }
 
   function setTick(list, key, done) {
-    const record = { list, key, done, at: Date.now() };
+    const record = { list, key, done, at: nextStamp(list, key) };
+    remember([record]);
     applyTick(record);
     writeMirror(list);
 
     if (opening) early.push(record);
-    else if (db) writeAll([record]).catch(() => {}).then(announce);
-    else announce();
+    else if (db) writeAll([record]).catch(() => {}).then(told);
+    else told();
 
     guard();
   }
 
-  async function exportBackup() {
-    const ticks = db
-      ? await readAll()
-      : LISTS.flatMap((list) => [...ticked[list]].map((key) => ({ list, key, done: true, at: Date.now() })));
-    return JSON.stringify({ format: BACKUP_FORMAT, version: 1, exportedAt: new Date().toISOString(), ticks }, null, 2);
+  function told() {
+    announce();
+    tellLocal();
+  }
+
+  // Every tick this browser knows about, including the ones that were ticked and then unticked
+  async function exportRecords() {
+    if (db) return readAll();
+    return LISTS.flatMap((list) => [...ticked[list]].map((key) => ({ list, key, done: true, at: Date.now() })));
   }
 
   function isTick(tick) {
@@ -221,23 +250,43 @@
     );
   }
 
-  // Merge a backup in: for each tick, whichever side changed it last wins
-  async function importBackup(text) {
+  // The backup file and the file devices sync through share this format
+  function formatBackup(records) {
+    return JSON.stringify(
+      { format: BACKUP_FORMAT, version: 1, exportedAt: new Date().toISOString(), ticks: records },
+      null,
+      2
+    );
+  }
+
+  function parseBackup(text) {
     const backup = JSON.parse(text);
     if (backup?.format !== BACKUP_FORMAT || !Array.isArray(backup.ticks)) {
       throw new Error("Not a backup file");
     }
-    const records = backup.ticks.filter(isTick).map(({ list, key, done, at }) => ({ list, key, done, at }));
+    return backup.ticks.filter(isTick).map(({ list, key, done, at }) => ({ list, key, done, at }));
+  }
 
+  // Merge in ticks from elsewhere: for each tick, whichever side changed it last wins
+  async function mergeRecords(records) {
+    const shown = snapshot();
     if (db) {
       await writeAll(records, { onlyNewer: true });
     } else {
-      // No change times to compare without the database, so the backup is applied as it is
+      // No change times to compare without the database, so the ticks are applied as they are
       records.forEach(applyTick);
       LISTS.forEach(writeMirror);
     }
-    await reload();
-    announce();
+    if (await reload(shown)) announce();
+  }
+
+  async function exportBackup() {
+    return formatBackup(await exportRecords());
+  }
+
+  async function importBackup(text) {
+    await mergeRecords(parseBackup(text));
+    tellLocal();
   }
 
   if (navigator.storage?.persisted) navigator.storage.persisted().then(setGuarded, () => {});
@@ -252,10 +301,16 @@
     },
     count: (name) => ticked[name].size,
     // kept: ticks survive closing the page. guarded: the browser promised not to clear them on its own.
-    status: () => ({ kept: Boolean(db) || mirrorWorks, guarded }),
+    // timed: each tick's change time is recorded (needs IndexedDB), which syncing between devices relies on.
+    status: () => ({ kept: Boolean(db) || mirrorWorks, guarded, timed: Boolean(db) }),
     onChange: (listener) => changeListeners.add(listener),
     onStatus: (listener) => statusListeners.add(listener),
+    onLocalChange: (listener) => localListeners.add(listener),
     exportBackup,
     importBackup,
+    exportRecords,
+    mergeRecords,
+    formatBackup,
+    parseBackup,
   };
 })();

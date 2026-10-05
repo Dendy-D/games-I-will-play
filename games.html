@@ -36,8 +36,26 @@
   <footer class="saves">
     <div class="saves-box">
       <h2>Save data</h2>
-      <p>Your Played ticks live in this browser, on this device. They won't appear in another browser or on your phone, and clearing site data erases them. Download a backup to move them or bring them back. One file covers both games and movies.</p>
+      <p>Your Played ticks are saved in this browser, on this device. Clearing site data erases them here.</p>
       <p id="storage-note"></p>
+
+      <h3>Sync</h3>
+      <p id="sync-status" role="status"></p>
+      <p class="sync-time" id="sync-time"></p>
+      <form class="sync-setup" id="sync-setup">
+        <label class="sync-field">
+          <span>Sync key</span>
+          <input type="password" id="sync-key" autocomplete="off" spellcheck="false" required>
+        </label>
+        <button type="submit">Turn on sync</button>
+      </form>
+      <div class="saves-actions" id="sync-controls" hidden>
+        <button type="button" id="sync-now">Sync now</button>
+        <button type="button" id="sync-off">Turn off sync</button>
+      </div>
+
+      <h3>Backup file</h3>
+      <p>A copy you keep yourself. One file covers both games and movies.</p>
       <div class="saves-actions">
         <button type="button" id="backup-download">Download backup</button>
         <button type="button" id="backup-restore">Restore from backup</button>
@@ -76,5 +94,6 @@
   <script src="store.js"></script>
   <script src="games-app.js"></script>
   <script src="backup.js"></script>
+  <script src="sync.js"></script>
 </body>
 </html>

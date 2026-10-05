@@ -408,7 +408,7 @@ body {
   margin-left: 10px;
 }
 
-/* Save data: where the ticks are kept, with backup and restore */
+/* Save data: where the ticks are kept, with sync, backup and restore */
 
 .saves {
   max-width: var(--page);
@@ -429,19 +429,33 @@ body {
   line-height: 1.1;
 }
 
+.saves h3 {
+  margin: 28px 0 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
 .saves p {
   max-width: 62ch;
   margin: 0 0 8px;
 }
 
-.saves-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 14px;
-  margin-top: 20px;
+/* The flex rows below would otherwise ignore the hidden attribute */
+.saves [hidden],
+.sync-time:empty {
+  display: none;
 }
 
-.saves-actions button {
+.saves-actions,
+.sync-setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 14px;
+  margin-top: 16px;
+}
+
+.saves button {
   padding: 8px 20px;
   border: 3px solid var(--ink);
   border-radius: 999px;
@@ -453,8 +467,32 @@ body {
   box-shadow: 4px 4px 0 var(--cobalt-deep);
 }
 
-.saves-actions button:hover {
+.saves button:hover {
   background: #e3e7fb;
+}
+
+.saves button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sync-field {
+  flex: 0 1 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.sync-field input {
+  width: 100%;
+  padding: 8px 20px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  box-shadow: 4px 4px 0 var(--cobalt-deep);
 }
 
 /* Keeps its line even when empty, so a result appearing doesn't push the page */
