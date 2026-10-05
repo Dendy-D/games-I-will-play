@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Movies I will watch</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234a0e1a'/%3E%3Cpath d='M5 10h22v4a2.5 2.5 0 0 0 0 5v4H5v-4a2.5 2.5 0 0 0 0-5z' fill='%23e8b04b'/%3E%3Cpath d='M20 10v13' stroke='%234a0e1a' stroke-width='1.6' stroke-dasharray='1.6 1.6'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="movies.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="back" href="index.html">Main menu</a>
+    <div class="marquee">
+      <h1 class="marquee-plate">Movies I will watch</h1>
+    </div>
+    <div class="controls">
+      <p class="tally" id="tally" aria-live="polite"></p>
+      <div class="filters" id="filters" role="group" aria-label="Show">
+        <button type="button" data-type="all" aria-pressed="true">All <span class="filter-count"></span></button>
+        <button type="button" data-type="movie" aria-pressed="false">Movies <span class="filter-count"></span></button>
+        <button type="button" data-type="cartoon" aria-pressed="false">Cartoons <span class="filter-count"></span></button>
+        <button type="button" data-type="series" aria-pressed="false">Series <span class="filter-count"></span></button>
+      </div>
+      <label class="search">
+        <span class="visually-hidden">Search titles</span>
+        <input type="search" id="search" placeholder="Search titles" autocomplete="off" spellcheck="false">
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <ul class="posters" id="posters"></ul>
+    <div class="empty" id="empty" hidden></div>
+  </main>
+
+  <footer class="saves">
+    <div class="saves-box">
+      <h2>Backup</h2>
+      <p>Your Watched ticks live in this browser, on this device. They won't appear in another browser or on your phone, and clearing site data erases them. Download a backup to move them or bring them back. One file covers both movies and games.</p>
+      <p id="storage-note"></p>
+      <div class="saves-actions">
+        <button type="button" id="backup-download">Download backup</button>
+        <button type="button" id="backup-restore">Restore from backup</button>
+        <input type="file" id="backup-file" accept=".json,application/json" hidden>
+      </div>
+      <p class="saves-result" id="backup-result" role="status"></p>
+    </div>
+  </footer>
+
+  <template id="film-template">
+    <li class="film">
+      <a class="film-poster" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true">
+        <img alt="" loading="lazy">
+        <span class="poster-fallback"><span class="poster-fallback-title"></span></span>
+        <span class="seen">Watched</span>
+      </a>
+      <div class="film-info">
+        <h2 class="film-title"><a target="_blank" rel="noopener noreferrer"></a></h2>
+        <p class="film-meta"><span class="film-type"></span><span class="film-year"></span></p>
+        <p class="film-desc"></p>
+        <div class="film-actions">
+          <a class="watch" target="_blank" rel="noopener noreferrer"></a>
+          <button class="watched-toggle" type="button" aria-pressed="false">Watched</button>
+        </div>
+      </div>
+    </li>
+  </template>
+
+  <script src="movies.js"></script>
+  <script src="store.js"></script>
+  <script src="movies-app.js"></script>
+  <script src="backup.js"></script>
+</body>
+</html>

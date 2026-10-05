@@ -1,0 +1,243 @@
+/* The menu borrows each section's own colors and type, so each door previews the room behind it */
+:root {
+  --cobalt: #2433a8;
+  --cobalt-deep: #161f6e;
+  --paper: #f4f6ff;
+  --ink: #10163f;
+  --sun: #ffc83d;
+
+  --velvet: #4a0e1a;
+  --velvet-light: #5f1526;
+  --velvet-deep: #2a0710;
+  --cream: #f6e9d2;
+  --gold: #e8b04b;
+  --bulb: #ffe6a6;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  font-family: "Onest", system-ui, sans-serif;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.doors {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.door {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 64px 24px;
+  overflow: hidden;
+  text-align: center;
+  text-decoration: none;
+}
+
+.door:focus-visible {
+  outline: 4px solid var(--paper);
+  outline-offset: -12px;
+}
+
+.door-games {
+  background-color: var(--cobalt);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1.5px, transparent 1.6px);
+  background-size: 22px 22px;
+  color: var(--paper);
+}
+
+.door-movies {
+  background-color: var(--velvet-deep);
+  background-image:
+    linear-gradient(to bottom, rgba(42, 7, 16, 0) 0, rgba(42, 7, 16, 0.75) 100%),
+    repeating-linear-gradient(90deg, var(--velvet) 0 8px, var(--velvet-light) 30px, var(--velvet) 52px, #3a0b15 74px, var(--velvet) 88px);
+  color: var(--cream);
+}
+
+.door-word {
+  font-size: clamp(3.25rem, 9vw, 7.5rem);
+  line-height: 0.95;
+}
+
+.door-games .door-word {
+  font-family: "Bungee", "Arial Black", sans-serif;
+  text-shadow: 0.055em 0.055em 0 var(--sun);
+}
+
+.door-movies .door-word {
+  font-family: "Oswald", "Arial Narrow", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 24px rgba(255, 200, 110, 0.45);
+}
+
+.door-sub {
+  max-width: 28ch;
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+.door-games .door-sub {
+  font-weight: 500;
+}
+
+.door-movies .door-sub {
+  font-family: "Lora", Georgia, serif;
+  font-style: italic;
+}
+
+.door-scope {
+  display: block;
+  color: var(--gold);
+}
+
+/* Cover fans. menu.js sets --i (position from the centre) on each cover */
+
+.door-covers {
+  --spread: 78px;
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  height: 200px;
+}
+
+.door-covers > * {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  overflow: hidden;
+  transform:
+    translate(calc(-50% + var(--i) * var(--spread)), calc(-50% + var(--i) * var(--i) * 12px))
+    rotate(calc(var(--i) * 8deg));
+}
+
+.door:hover .door-covers,
+.door:focus-visible .door-covers {
+  --spread: 112px;
+}
+
+.cover-game {
+  width: 190px;
+  aspect-ratio: 16 / 9;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  background: var(--cobalt-deep);
+  box-shadow: 6px 6px 0 var(--cobalt-deep);
+}
+
+.cover-film {
+  width: 118px;
+  aspect-ratio: 2 / 3;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #56111f, #1f050b);
+  box-shadow:
+    0 0 0 2px rgba(232, 176, 75, 0.6),
+    0 14px 28px rgba(0, 0, 0, 0.55);
+}
+
+.door-covers img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A film with no poster gets its title printed on a plain one, as on the movies page */
+.cover-film-title {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 10px;
+  color: var(--cream);
+  font-family: "Oswald", "Arial Narrow", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  text-align: left;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.or {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 1.1rem;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .doors {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+
+  .door {
+    padding: 48px 16px;
+    gap: 14px;
+  }
+
+  .door-covers {
+    --spread: 64px;
+    height: 160px;
+  }
+
+  .door:hover .door-covers,
+  .door:focus-visible .door-covers {
+    --spread: 80px;
+  }
+
+  .cover-game {
+    width: 150px;
+  }
+
+  .cover-film {
+    width: 92px;
+  }
+
+  .or {
+    width: 54px;
+    height: 54px;
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .door-covers > * {
+    transition: transform 240ms ease-out;
+  }
+}
