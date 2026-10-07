@@ -311,4 +311,12 @@ window.GAMES = [
       "The kids' game that came with Windows Vista and Windows 7, made by Oberon Media for Microsoft in 2007. Three mini-games: Purble Pairs (memory matching), Comfy Cakes (build cakes to order on a conveyor belt) and Purble Shop (guess the hidden colours, Mastermind-style).",
     platform: "PC",
   },
+  {
+    title: "Суперсемейка",
+    image: "images/incredibles.jpg",
+    url: "https://ru.wikipedia.org/wiki/The_Incredibles_(игра)",
+    description:
+      "The first Incredibles game, made by Heavy Iron Studios for THQ in 2004 from Pixar's film. Each level hands you a different member of the family: Mr. Incredible brawls and smashes, Elastigirl stretches and swings, Violet sneaks past guards while invisible, and Dash races against the clock. Music by Michael Giacchino, who scored the film.",
+    platform: "PC",
+  },
 ];
