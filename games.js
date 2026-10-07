@@ -319,4 +319,12 @@ window.GAMES = [
       "The first Incredibles game, made by Heavy Iron Studios for THQ in 2004 from Pixar's film. Each level hands you a different member of the family: Mr. Incredible brawls and smashes, Elastigirl stretches and swings, Violet sneaks past guards while invisible, and Dash races against the clock. Music by Michael Giacchino, who scored the film.",
     platform: "PC",
   },
+  {
+    title: "Суперсемейка: Подземная битва",
+    image: "images/incredibles-underminer.jpg",
+    url: "https://ru.wikipedia.org/wiki/The_Incredibles:_Rise_of_the_Underminer",
+    description:
+      "The Incredibles: Rise of the Underminer, the 2005 sequel that starts where the film ends: the Underminer drills up into the city, and Mr. Incredible and Frozone chase him underground through his army of robots. Mr. Incredible punches, lifts and throws, Frozone freezes. Swap between them on the fly, or play the whole game in two-player co-op.",
+    platform: "PC",
+  },
 ];
